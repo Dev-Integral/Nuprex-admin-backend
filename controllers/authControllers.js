@@ -3,24 +3,53 @@ const generateToken = require('../utils/generateToken');
 const sendEmail = require('../utils/sendEmail');
 const crypto = require('crypto');
 const { v4: uuidv4 } = require("uuid");
+const codeGenerator = require('../utils/codeGenerator');
+const path = require('path');
+const ejs = require('ejs');
 
 // Register a new user (only accessible to superadmins)
 exports.register = async (req, res) => {
   const { fullname, email, role, password } = req.body;
 
   try {
-    // Generate a unique reference for the user
+    
+    // Check if the user already exists
+    const existingAdmin = await Admin.findOne({ where: { email } });
+    if (existingAdmin) {
+      return res.status(400).json({ error: 'Admin with this email already exists' });
+    }
+
+    // Generate a unique reference for the new admin and verification pin
     const adminId = uuidv4();
-    const user = await Admin.create({
+    const emailProofToken = codeGenerator(6, "numeric")
+    const emailProofTokenExpiresAt = new Date();
+    emailProofTokenExpiresAt.setHours(emailProofTokenExpiresAt.getHours() + 1);
+
+    const admin = await Admin.create({
       fullname,
       email,
-      password,
       role,
-      adminId
+      password,
+      adminId,
+      emailProofToken,
+      emailProofTokenExpiresAt
+    });
+
+    // Define the path to the email template
+    const templatePath = path.join(__dirname, '../views/pinEmailTemplate.ejs');
+
+    // Render the email template with the PIN
+    const html = await ejs.renderFile(templatePath, { pin: emailProofToken, fullname });
+
+    // Send the email
+    await sendEmail({
+      email: admin.email,
+      subject: 'Nuprex - Email Verification',
+      message: `Your verification PIN is: ${emailProofToken}`, // Fallback text-only version
+      html,
     });
     res.status(201).json({
-      success: true,
-      data: user,
+      message: "Admin created Successfully, Verify Email to login",
     });
   } catch (err) {
     res.status(400).json({ error: err.message });

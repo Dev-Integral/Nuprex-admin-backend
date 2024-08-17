@@ -43,10 +43,18 @@ const Admin = sequelize.define('Admin', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  emailProofToken: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  emailProofTokenExpiresAt: {
+    type: DataTypes.DATE,
+  },
   resetPasswordExpires: {
     type: DataTypes.DATE,
     allowNull: true,
   },
+
 });
 
 // Hash password before saving admin
