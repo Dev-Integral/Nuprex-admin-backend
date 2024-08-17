@@ -65,16 +65,17 @@ exports.login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await Admin.findOne({ where: { email } });
+    const admin = await Admin.findOne({ where: { email } });
 
-    if (!user || !(await user.validPassword(password))) {
+    if (!admin || !(await admin.validPassword(password))) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
-    const token = generateToken(user.id);
+    const token = generateToken(admin.adminId);
 
     res.status(200).json({
       success: true,
+      admin: {email: admin.email, fullname: admin.fullname},
       token,
     });
   } catch (err) {
