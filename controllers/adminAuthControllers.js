@@ -70,12 +70,16 @@ exports.login = async (req, res) => {
     if (!admin || !(await admin.validPassword(password))) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
-
+    if (!admin.isEnabled) {
+      return res.status(403).json({
+        message: "Your account is not verified",
+      });
+    }
     const token = generateToken(admin.adminId);
 
     res.status(200).json({
       success: true,
-      admin: {email: admin.email, fullname: admin.fullname},
+      admin: { email: admin.email, fullname: admin.fullname },
       token,
     });
   } catch (err) {
@@ -163,7 +167,7 @@ exports.resetPassword = async (req, res) => {
 
 // Verify Email
 exports.verifyEmail = async (req, res) => {
-  const {token, email} = req.body;
+  const { token, email } = req.body;
   console.log("HERE");
 
   const admin = await Admin.findOne({
@@ -183,7 +187,7 @@ exports.verifyEmail = async (req, res) => {
     );
     await admin.save();
     // Define the path to the email template
-    console.log("Admin expired")
+    console.log("Admin expired");
     const templatePath = path.join(__dirname, "../views/pinEmailTemplate.ejs");
 
     // Render the email template with the PIN
@@ -211,8 +215,11 @@ exports.verifyEmail = async (req, res) => {
   await admin.save();
 
   // Define the path to the email template
-  console.log("valid")
-  const templatePath = path.join(__dirname, "../views/emailVerificationTemplate.ejs");
+  console.log("valid");
+  const templatePath = path.join(
+    __dirname,
+    "../views/emailVerificationTemplate.ejs"
+  );
 
   // Render the email template with the PIN
   const html = await ejs.renderFile(templatePath, {
