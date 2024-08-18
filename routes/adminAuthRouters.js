@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/adminAuthControllers');
-const { protect, restrictTo } = require('../middlewares/authMiddlewares');
+const { protectAdmin, restrictTo } = require('../middlewares/authMiddlewares');
 
 // Register a new admin (only accessible to superadmins)
-router.post('/register', protect, restrictTo("superadmin"), authController.register);
+router.post('/register', protectAdmin, restrictTo("superadmin"), authController.register);
 
 // Login route (accessible to all)
 router.post('/login', authController.login);
