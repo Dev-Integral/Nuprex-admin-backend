@@ -1,8 +1,8 @@
 const jwt = require("jsonwebtoken");
-const Admin = require("../models/Admin");
+const Customer = require("../models/Customer");
 
 // Protect routes: Ensures the user is logged in
-exports.protectAdmin = async (req, res, next) => {
+exports.protectCustomer = async (req, res, next) => {
   let token;
   if (
     req.headers.authorization &&
@@ -19,9 +19,9 @@ exports.protectAdmin = async (req, res, next) => {
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Find the admin by id from the token payload
-    req.admin = await Admin.findOne({ where: { adminId: decoded.id } });
-    if (!req.admin) {
+    // Find the customer by id from the token payload
+    req.customer = await Customer.findOne({ where: { customerId: decoded.id } });
+    if (!req.customer) {
       return res.status(401).json({ error: "Not authorized, user not found" });
     }
 
@@ -29,16 +29,4 @@ exports.protectAdmin = async (req, res, next) => {
   } catch (err) {
     res.status(401).json({ error: "Not authorized, token failed" });
   }
-};
-
-// Restrict to specific roles: Ensures only specific roles can access the route
-exports.restrictTo = (...roles) => {
-  return (req, res, next) => {
-    if (!roles.includes(req.admin.role)) {
-      return res
-        .status(403)
-        .json({ error: "You do not have permission to perform this action" });
-    }
-    next();
-  };
 };
