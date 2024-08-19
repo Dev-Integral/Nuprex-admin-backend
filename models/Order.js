@@ -3,7 +3,7 @@ const sequelize = require('./index');
 
 const Order = sequelize.define('Order', {
   type: {
-    type: DataTypes.ENUM("pickup, delivery, runErrands"),
+    type: DataTypes.ENUM("pickup", "delivery", "runErrands"),
     allowNull: false,
   },
   customerId: {
@@ -27,7 +27,23 @@ const Order = sequelize.define('Order', {
   },
   txnId: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: true
+  },
+  rating: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  orderReceived: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  riderAccepted: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  riderMoving: {
+    type: DataTypes.STRING,
+    allowNull: true
   },
   status: {
     type: DataTypes.ENUM("pending", "completed", "cancelled"),

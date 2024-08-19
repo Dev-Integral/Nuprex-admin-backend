@@ -5,7 +5,7 @@ const path = require("path");
 const serverPort = "5000";
 const adminAuthRouters = require("./routes/adminAuthRouters");
 const customerRouters = require("./routes/customerRouters");
-const orderRouters = require("./routes/oderRouters");
+const orderRouters = require("./routes/orderRouters");
 // static files
 app.use(express.static("./public"));
 
