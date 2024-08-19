@@ -4,6 +4,7 @@ const path = require("path");
 const ejs = require("ejs");
 const { v4: uuidv4 } = require("uuid");
 const sendEmail = require("../utils/sendEmail");
+const generateToken = require("../utils/generateToken");
 
 exports.create = async (req, res) => {
   const { name, email, password } = req.body;

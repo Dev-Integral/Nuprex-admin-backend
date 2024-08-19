@@ -216,7 +216,6 @@ exports.verifyEmail = async (req, res) => {
   await admin.save();
 
   // Define the path to the email template
-  console.log("valid");
   const templatePath = path.join(
     __dirname,
     "../views/emailVerificationTemplate.ejs"
