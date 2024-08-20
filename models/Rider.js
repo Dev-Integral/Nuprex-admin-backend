@@ -26,12 +26,17 @@ const Rider = sequelize.define("Rider", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  creator: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   homeAddress: {
     type: DataTypes.DECIMAL(10, 2),
   },
   riderCode: {
     type: DataTypes.STRING,
     allowNull: true,
+    unique: true
   },
   vehicleType: {
     type: DataTypes.STRING,
