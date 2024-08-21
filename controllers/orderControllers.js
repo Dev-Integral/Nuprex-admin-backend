@@ -110,7 +110,7 @@ exports.getAllOrders = async (req, res) => {
   }
 };
 exports.getOrderById = async (req, res) => {
-  const { id } = req.params;
+  const { orderId } = req.params;
   const { adminId } = req.admin;
 
   try {
@@ -119,7 +119,7 @@ exports.getOrderById = async (req, res) => {
       return res.status(404).json({ message: "Admin not found" });
     }
     // Find the order by ID
-    const order = await Order.findOne({ where: { id } });
+    const order = await Order.findOne({ where: { orderId } });
 
     // If the order is not found, return a 404 error
     if (!order) {

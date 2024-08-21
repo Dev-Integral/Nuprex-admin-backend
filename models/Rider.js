@@ -5,6 +5,7 @@ const Rider = sequelize.define("Rider", {
   riderId: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
   },
   gender: {
     type: DataTypes.ENUM("male", "female"),
@@ -21,22 +22,24 @@ const Rider = sequelize.define("Rider", {
   phone: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
   },
   email: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
   },
   creator: {
     type: DataTypes.STRING,
     allowNull: false,
   },
   homeAddress: {
-    type: DataTypes.DECIMAL(10, 2),
+    type: DataTypes.STRING,
   },
   riderCode: {
     type: DataTypes.STRING,
     allowNull: true,
-    unique: true
+    unique: true,
   },
   vehicleType: {
     type: DataTypes.STRING,
@@ -46,6 +49,9 @@ const Rider = sequelize.define("Rider", {
     type: DataTypes.BOOLEAN,
     allowNull: false,
     defaultValue: false,
+  },
+  reason: {
+    type: DataTypes.STRING,
   },
 });
 

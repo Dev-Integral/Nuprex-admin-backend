@@ -2,6 +2,11 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('./index');
 
 const Order = sequelize.define('Order', {
+  orderId: {
+    type: DataTypes.STRING,
+    unique: true,
+    allowNull: false
+  },
   type: {
     type: DataTypes.ENUM("pickup", "delivery", "runErrands"),
     allowNull: false,

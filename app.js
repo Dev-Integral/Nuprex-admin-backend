@@ -6,6 +6,7 @@ const serverPort = "5000";
 const adminAuthRouters = require("./routes/adminAuthRouters");
 const customerRouters = require("./routes/customerRouters");
 const orderRouters = require("./routes/orderRouters");
+const riderRouters = require("./routes/riderRouters");
 // static files
 app.use(express.static("./public"));
 
@@ -20,6 +21,7 @@ app.use(express.json());
 app.use("/api/admin", adminAuthRouters);
 app.use("/api/customer", customerRouters);
 app.use("/api/order", orderRouters);
+app.use("/api/rider", riderRouters);
 
 // Wildcard for if route doesn't match
 app.all("*", (_req, res) =>
