@@ -64,161 +64,177 @@ exports.createRider = async (req, res) => {
 exports.getRiders = async (req, res) => {
   const { adminId } = req.admin;
   const { page = 1, limit = 10, name, paginate = "false" } = req.query;
+  try {
+    const admin = await Admin.findOne({ where: { adminId } });
 
-  const admin = await Admin.findOne({ where: { adminId } });
+    if (!admin) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    // Build the query filter
+    const filter = {};
 
-  if (!admin) {
-    return res.status(404).json({ message: "User not found" });
-  }
-  // Build the query filter
-  const filter = {};
+    if (name) {
+      filter.type = name;
+    }
 
-  if (name) {
-    filter.type = name;
-  }
+    let riders;
+    if (paginate === "true") {
+      // Apply pagination
+      const offset = (page - 1) * limit;
 
-  let riders;
-  if (paginate === "true") {
-    // Apply pagination
-    const offset = (page - 1) * limit;
+      riders = await Rider.findAndCountAll({
+        where: filter,
+        limit: parseInt(limit),
+        offset: parseInt(offset),
+        order: [["createdAt", "DESC"]],
+      });
 
-    riders = await Rider.findAndCountAll({
-      where: filter,
-      limit: parseInt(limit),
-      offset: parseInt(offset),
-      order: [["createdAt", "DESC"]],
-    });
+      return res.status(200).json({
+        message: "Riders fetched successfully",
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(riders.count / limit),
+        totalRiders: riders.count,
+        riders: riders.rows,
+      });
+    } else {
+      // No pagination
+      riders = await Rider.findAll({
+        where: filter,
+        order: [["createdAt", "DESC"]],
+      });
 
-    return res.status(200).json({
-      message: "Riders fetched successfully",
-      currentPage: parseInt(page),
-      totalPages: Math.ceil(riders.count / limit),
-      totalRiders: riders.count,
-      riders: riders.rows,
-    });
-  } else {
-    // No pagination
-    riders = await Rider.findAll({
-      where: filter,
-      order: [["createdAt", "DESC"]],
-    });
-
-    return res.status(200).json({
-      message: "Riders fetched successfully",
-      totalRiders: riders.length,
-      riders,
-    });
+      return res.status(200).json({
+        message: "Riders fetched successfully",
+        totalRiders: riders.length,
+        riders,
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({ error: error["message"], error });
   }
 };
 exports.getRiderbyId = async (req, res) => {
   const { adminId } = req.admin;
   const { riderId } = req.params;
+  try {
+    const admin = await Admin.findOne({ where: { adminId } });
 
-  const admin = await Admin.findOne({ where: { adminId } });
-
-  if (!admin) {
-    return res.status(404).json({ message: "User not found" });
+    if (!admin) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const rider = await Rider.findOne({ where: { riderId } });
+    if (!rider) {
+      return res.status(404).json({ message: "Rider not found" });
+    }
+    return res.status(200).json({
+      rider,
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error["message"], error });
   }
-  const rider = await Rider.findOne({ where: { riderId } });
-  if (!rider) {
-    return res.status(404).json({ message: "Rider not found" });
-  }
-  return res.status(200).json({
-    rider,
-  });
 };
 exports.suspendRider = async (req, res) => {
   const { adminId } = req.admin;
   const { riderId } = req.params;
   const { reason } = req.body;
+  try {
+    const admin = await Admin.findOne({ where: { adminId } });
 
-  const admin = await Admin.findOne({ where: { adminId } });
-
-  if (!admin) {
-    return res.status(404).json({ message: "User not found" });
+    if (!admin) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const rider = await Rider.findOne({ where: { riderId } });
+    if (!rider) {
+      return res.status(404).json({ message: "Rider not found" });
+    }
+    rider.isSuspended = true;
+    rider.reason = reason;
+    await rider.save();
+    return res.status(200).json({
+      message: "Rider suspended successfully",
+      rider,
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error["message"], error });
   }
-  const rider = await Rider.findOne({ where: { riderId } });
-  if (!rider) {
-    return res.status(404).json({ message: "Rider not found" });
-  }
-  rider.isSuspended = true;
-  rider.reason = reason;
-  await rider.save();
-  return res.status(200).json({
-    message: "Rider suspended successfully",
-    rider,
-  });
 };
 exports.activateRider = async (req, res) => {
   const { adminId } = req.admin;
   const { riderId } = req.params;
+  try {
+    const admin = await Admin.findOne({ where: { adminId } });
 
-  const admin = await Admin.findOne({ where: { adminId } });
-
-  if (!admin) {
-    return res.status(404).json({ message: "User not found" });
+    if (!admin) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const rider = await Rider.findOne({ where: { riderId } });
+    if (!rider) {
+      return res.status(404).json({ message: "Rider not found" });
+    }
+    rider.isSuspended = false;
+    rider.reason = "";
+    await rider.save();
+    return res.status(200).json({
+      message: "Rider activated successfully",
+      rider,
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error["message"], error });
   }
-  const rider = await Rider.findOne({ where: { riderId } });
-  if (!rider) {
-    return res.status(404).json({ message: "Rider not found" });
-  }
-  rider.isSuspended = false;
-  rider.reason = "";
-  await rider.save();
-  return res.status(200).json({
-    message: "Rider activated successfully",
-    rider,
-  });
 };
 exports.riderActivities = async (req, res) => {
   const { adminId } = req.admin;
   const { riderId } = req.params;
   const { orderId } = req.query;
-  const admin = await Admin.findOne({ where: { adminId } });
-  if (!admin) {
-    return res.status(404).json({ message: "User not found" });
-  }
-  let riderActivities;
-
-  const filter = {};
-  if (orderId) {
-    filter.orderId = orderId;
-  }
-  filter.riderId = riderId;
-  if (paginate === "true") {
-    // Apply pagination
-    const offset = (page - 1) * limit;
-
-    riderActivities = await Order.findAndCountAll({
-      where: filter,
-      limit: parseInt(limit),
-      offset: parseInt(offset),
-      order: [["createdAt", "DESC"]],
-    });
-    if (!riderActivities) {
-      return res.status(404).json({ message: "No activities found" });
+  try {
+    const admin = await Admin.findOne({ where: { adminId } });
+    if (!admin) {
+      return res.status(404).json({ message: "User not found" });
     }
-    return res.status(200).json({
-      message: "Rider activities fetched successfully",
-      currentPage: parseInt(page),
-      totalPages: Math.ceil(riderActivities.count / limit),
-      totalActivities: riderActivities.count,
-      riders: riderActivities.rows,
-    });
-  } else {
-    // No pagination
-    riderActivities = await Order.findAll({
-      where: filter,
-      order: [["createdAt", "DESC"]],
-    });
-    if (!riderActivities) {
-      return res.status(404).json({ message: "No activities found" });
+    let riderActivities;
+
+    const filter = {};
+    if (orderId) {
+        filter["orderId"] = orderId;
     }
-    return res.status(200).json({
-      message: "Rider activities fetched successfully",
-      riderActivities,
-      totalRiderActivities: riderActivities.length,
-      riderActivities,
-    });
+    filter.riderId = riderId;
+    if (paginate === "true") {
+      // Apply pagination
+      const offset = (page - 1) * limit;
+
+      riderActivities = await Order.findAndCountAll({
+        where: filter,
+        limit: parseInt(limit),
+        offset: parseInt(offset),
+        order: [["createdAt", "DESC"]],
+      });
+      if (!riderActivities) {
+        return res.status(404).json({ message: "No activities found" });
+      }
+      return res.status(200).json({
+        message: "Rider activities fetched successfully",
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(riderActivities.count / limit),
+        totalActivities: riderActivities.count,
+        riders: riderActivities.rows,
+      });
+    } else {
+      // No pagination
+      riderActivities = await Order.findAll({
+        where: filter,
+        order: [["createdAt", "DESC"]],
+      });
+      if (!riderActivities) {
+        return res.status(404).json({ message: "No activities found" });
+      }
+      return res.status(200).json({
+        message: "Rider activities fetched successfully",
+        riderActivities,
+        totalRiderActivities: riderActivities.length,
+        riderActivities,
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({ error: error["message"], error });
   }
 };
