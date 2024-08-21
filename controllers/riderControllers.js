@@ -173,21 +173,18 @@ exports.activateRider = async (req, res) => {
 exports.riderActivities = async (req, res) => {
   const { adminId } = req.admin;
   const { riderId } = req.params;
-  const {orderId} = req.query;
+  const { orderId } = req.query;
   const admin = await Admin.findOne({ where: { adminId } });
   if (!admin) {
     return res.status(404).json({ message: "User not found" });
   }
+  let riderActivities;
 
-  if (!riderActivities) {
-    return res.status(404).json({ message: "No activities found" });
-  }
   const filter = {};
   if (orderId) {
     filter.orderId = orderId;
   }
   filter.riderId = riderId;
-  let riderActivities;
   if (paginate === "true") {
     // Apply pagination
     const offset = (page - 1) * limit;
@@ -198,7 +195,9 @@ exports.riderActivities = async (req, res) => {
       offset: parseInt(offset),
       order: [["createdAt", "DESC"]],
     });
-
+    if (!riderActivities) {
+      return res.status(404).json({ message: "No activities found" });
+    }
     return res.status(200).json({
       message: "Rider activities fetched successfully",
       currentPage: parseInt(page),
@@ -212,7 +211,9 @@ exports.riderActivities = async (req, res) => {
       where: filter,
       order: [["createdAt", "DESC"]],
     });
-
+    if (!riderActivities) {
+      return res.status(404).json({ message: "No activities found" });
+    }
     return res.status(200).json({
       message: "Rider activities fetched successfully",
       riderActivities,
