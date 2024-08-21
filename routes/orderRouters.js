@@ -6,6 +6,7 @@ const { protectAdmin } = require('../middlewares/authMiddlewares');
 
 // All order route (accessible to Admin only)
 router.get('/', protectAdmin, orderController.getAllOrders);
+router.get('/:orderId', protectAdmin, orderController.getOrderById);
 // Create order route (accessible to Customer)
 router.post('/create', protectCustomer, orderController.createOrder);
 
