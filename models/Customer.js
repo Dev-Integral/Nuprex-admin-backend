@@ -14,7 +14,7 @@ const Customer = sequelize.define("Customer", {
   },
   password: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   customerId: {
     type: DataTypes.STRING,
@@ -22,6 +22,13 @@ const Customer = sequelize.define("Customer", {
     unique: true,
   },
   isEnabled: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  imageUrl: {
+    type: DataTypes.STRING,
+  },
+  isSuspended: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
   },

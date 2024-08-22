@@ -74,6 +74,11 @@ exports.login = async (req, res) => {
         message: "Your account is not verified",
       });
     }
+    if(!admin.isSuspended){
+      return res.status(403).json({
+        message: "Your account is suspended",
+        });
+    }
     const token = generateToken(admin.adminId);
 
     res.status(200).json({
