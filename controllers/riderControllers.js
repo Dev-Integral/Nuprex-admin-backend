@@ -185,7 +185,7 @@ exports.activateRider = async (req, res) => {
 exports.riderActivities = async (req, res) => {
   const { adminId } = req.admin;
   const { riderId } = req.params;
-  const { orderId } = req.query;
+  const { orderId, paginate, limit = 10, page = 1 } = req.query;
   try {
     const admin = await Admin.findOne({ where: { adminId } });
     if (!admin) {
@@ -195,9 +195,10 @@ exports.riderActivities = async (req, res) => {
 
     const filter = {};
     if (orderId) {
-        filter["orderId"] = orderId;
+      filter["orderId"] = orderId;
     }
     filter.riderId = riderId;
+    console.log(paginate);
     if (paginate === "true") {
       // Apply pagination
       const offset = (page - 1) * limit;
@@ -216,7 +217,7 @@ exports.riderActivities = async (req, res) => {
         currentPage: parseInt(page),
         totalPages: Math.ceil(riderActivities.count / limit),
         totalActivities: riderActivities.count,
-        riders: riderActivities.rows,
+        ridersActivities: riderActivities.rows,
       });
     } else {
       // No pagination
