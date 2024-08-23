@@ -198,7 +198,7 @@ exports.riderActivities = async (req, res) => {
       filter["orderId"] = orderId;
     }
     filter.riderId = riderId;
-    console.log(paginate);
+
     if (paginate === "true") {
       // Apply pagination
       const offset = (page - 1) * limit;
@@ -239,3 +239,31 @@ exports.riderActivities = async (req, res) => {
     return res.status(500).json({ error: error["message"], error });
   }
 };
+exports.resetPassword = async (req, res) => {
+    const resetPasswordToken = req.params.token;
+  
+    try {
+      const rider = await Rider.findOne({
+        where: {
+          resetPasswordToken,
+        },
+      });
+  
+      if (!rider) {
+        return res
+          .status(400)
+          .json({ error: "Invalid token or token has expired" });
+      }
+      if (Date.now() > rider.resetPasswordExpires) {
+        return res.status(400).json({ error: "Token has expired" });
+      }
+      rider.password = req.body.password;
+      rider.resetPasswordToken = null;
+      rider.resetPasswordExpires = null;
+      await rider.save();
+  
+      res.status(200).json({ message: "Password updated successfully" });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  };
