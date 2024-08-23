@@ -22,7 +22,6 @@ passport.use(
         });
 
         if (!user) {
-            console.log(profile)
           user = await Customer.create({
             customerId: profile.id,
             name: profile.displayName,
